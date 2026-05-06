@@ -3,15 +3,12 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert, TextInput, I
 import API from '../../utils/api'
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { BASE_URL } from '@env';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ManageTeamScreen() {
   const navigation = useNavigation();
   const [team, setTeam] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [users, setUsers] = useState([]);
-  const [user, setUser] = useState(null);
 
 const fetchManagers = async () => {
   try {
@@ -55,7 +52,7 @@ useEffect(() => {
     fetchUsers();
   }, [showModal]);
 
-  const handleDelete = (id) => {
+  const handleDelete = (managerId) => {
     Alert.alert(
       'Remove Team Member',
       'Are you sure you want to remove this person?',
@@ -66,8 +63,8 @@ useEffect(() => {
           style: 'destructive',
           onPress: async () => {
             try {
-              await API.delete(`/api/managers/${id}`);
-              setTeam(prev => prev.filter(member => member._id !== id));
+              await API.delete(`/api/managers/${managerId}`);
+              setTeam(prev => prev.filter(member => member.managerId !== managerId));
             } catch (err) {
               console.error('Failed to delete:', err.response?.data);
             }
@@ -121,7 +118,7 @@ useEffect(() => {
         </View>
       </View>
       <View style={{flexDirection: 'row'}}>
-        <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item._id)}>
+        <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item.managerId)}>
           <Text style={styles.deleteText}>Remove</Text>
         </TouchableOpacity>
       </View>

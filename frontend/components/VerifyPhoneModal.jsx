@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Modal, StyleSheet } from 'react-native';
-import axios from 'axios';
+import API from '../utils/api';
 
 export default function VerifyPhoneModal({ visible, onClose, phone }) {
   const [code, setCode] = useState('');
@@ -8,7 +8,7 @@ export default function VerifyPhoneModal({ visible, onClose, phone }) {
 
   const verifyCode = async () => {
     try {
-      const res = await axios.post('http://localhost:3001/api/auth/verify', { phone, code });
+      const res = await API.post('/api/auth/verify', { phone, code });
       setMessage(res.data.message);
       setTimeout(() => {
         setMessage('');
