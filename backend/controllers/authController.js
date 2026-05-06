@@ -29,6 +29,24 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
+
+exports.deleteUser = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await Manager.deleteMany({ user: id });
+    const user = await User.findByIdAndDelete(id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'משתמש לא נמצא' });
+    }
+
+    res.json({ message: 'המשתמש נמחק בהצלחה' });
+  } catch (err) {
+    res.status(500).json({ message: 'שגיאה במחיקת המשתמש', error: err });
+  }
+};
+
 exports.register = async (req, res) => {
     const { name, phone, password } = req.body;
     try {

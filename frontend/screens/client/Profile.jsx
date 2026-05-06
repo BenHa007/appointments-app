@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { BASE_URL } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { decode as atob } from 'base-64';
 import API from '../../utils/api';
@@ -163,17 +162,12 @@ export default function ProfileScreen() {
                       {
                         text: 'Yes',
                         onPress: async () => {
-                          const token = await AsyncStorage.getItem('token');
-                          fetch(`${BASE_URL}/api/appointments/${appt._id}`, {
-                            method: 'DELETE',
-                            headers: {
-                              Authorization: `Bearer ${token}`,
-                            },
-                          })
-                            .then(() => {
-                              setAppointments(appointments.filter(a => a._id !== appt._id));
-                            })
-                            .catch(err => console.error('Failed to cancel appointment:', err));
+                          try {
+                            await API.delete(`/api/appointments/${appt._id}`);
+                            setAppointments(appointments.filter(a => a._id !== appt._id));
+                          } catch (err) {
+                            console.error('Failed to cancel appointment:', err);
+                          }
                         },
                       },
                     ]
