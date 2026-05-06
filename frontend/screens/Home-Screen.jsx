@@ -43,18 +43,8 @@ export default function HomeScreen() {
     return 'Good evening';
   };
 
-  const handleMenuToggle = async () => {
-    try {
-      const token = await AsyncStorage.getItem('token');
-      if (!token) {
-        alert('You must log in or register to access the menu.');
-        return;
-      }
-      setMenuOpen(!menuOpen);
-    } catch (err) {
-      console.log('Error checking token', err);
-      alert('You must log in or register to access the menu.');
-    }
+  const handleMenuToggle = () => {
+    setMenuOpen(!menuOpen);
   };
 
   return (
@@ -80,17 +70,26 @@ export default function HomeScreen() {
 
         {menuOpen && (
           <View style={styles.sideMenu}>
-            <TouchableOpacity onPress={() => navigation.navigate('BookAppointment')} style={{ padding: 10, alignItems: 'center' }}>
-              <View style={{ alignItems: 'center' }}>
-                <Text style={{ color: '#e85d04', fontWeight: 'bold', fontSize: 16 }}>Book Appointment</Text>
-              </View>
-            </TouchableOpacity>
-            {isManager && (
-              <TouchableOpacity onPress={() => navigation.navigate('AdminDashboard')} style={{ padding: 10, alignItems: 'center' }}>
-                <View style={{ alignItems: 'center' }}>
-                  <Text style={{ color: '#e85d04', fontWeight: 'bold', fontSize: 16 }}>Admin Dashboard</Text>
-                </View>
-              </TouchableOpacity>
+            {userName == null ? (
+              <>
+                <TouchableOpacity onPress={() => { setMenuOpen(false); navigation.navigate('Login'); }} style={{ padding: 10, alignItems: 'center' }}>
+                  <Text style={{ color: '#e85d04', fontWeight: 'bold', fontSize: 16 }}>Login</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => { setMenuOpen(false); navigation.navigate('Register'); }} style={{ padding: 10, alignItems: 'center' }}>
+                  <Text style={{ color: '#e85d04', fontWeight: 'bold', fontSize: 16 }}>Register</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                <TouchableOpacity onPress={() => navigation.navigate('BookAppointment')} style={{ padding: 10, alignItems: 'center' }}>
+                  <Text style={{ color: '#e85d04', fontWeight: 'bold', fontSize: 16 }}>Book Appointment</Text>
+                </TouchableOpacity>
+                {isManager && (
+                  <TouchableOpacity onPress={() => navigation.navigate('AdminDashboard')} style={{ padding: 10, alignItems: 'center' }}>
+                    <Text style={{ color: '#e85d04', fontWeight: 'bold', fontSize: 16 }}>Admin Dashboard</Text>
+                  </TouchableOpacity>
+                )}
+              </>
             )}
           </View>
         )}

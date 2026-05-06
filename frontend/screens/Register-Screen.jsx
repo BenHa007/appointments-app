@@ -9,6 +9,9 @@ export default function RegisterScreen() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [codeSent, setCodeSent] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [otpAttempts, setOtpAttempts] = useState(0);
   const navigation = useNavigation();
 
   const handleRegister = async () => {
@@ -20,134 +23,72 @@ export default function RegisterScreen() {
     setLoading(true);
     try {
       await API.post('/api/auth/send-code', { phone });
-
-      const handleVerification = () => {
-        let attempts = 0;
-        const verifyLoop = () => {
-          if (attempts >= 3) {
-            Alert.alert('Error', 'Too many incorrect attempts. Please request a new code.');
-            setLoading(false);
-            return;
-          }
-          Alert.prompt(
-            'Phone Verification',
-            'Enter the verification code you received via SMS',
-            [
-              {
-                text: 'Confirm',
-                onPress: async (code) => {
-                  if (!code || code.length !== 4) {
-                    Alert.alert('Error', 'Please enter a 4-digit code', [
-                      { text: 'Try Again', onPress: () => verifyLoop() },
-                      { text: 'Resend Code', onPress: async () => {
-                        setLoading(true);
-                        try {
-                          await API.post('/api/auth/send-code', { phone });
-                          Alert.alert('Success', 'Verification code resent');
-                        } catch (err) {
-                          Alert.alert('Error', 'Failed to resend code. Please try again later.');
-                        }
-                        setLoading(false);
-                        attempts = 0;
-                        verifyLoop();
-                      }},
-                    ]);
-                    setLoading(false);
-                    return;
-                  }
-                  try {
-                    const verifyRes = await API.post('/api/auth/verify', { phone, code });
-                    if (verifyRes.status === 200) {
-                      try {
-                        const res = await API.post('/api/auth/register', { name, phone, password });
-                        if (res.status === 201) {
-                          Alert.alert('Success', 'Registration and verification completed successfully!', [
-                            { text: 'OK', onPress: () => navigation.navigate('Home') }
-                          ]);
-                        } else {
-                          Alert.alert('Error', 'Registration failed');
-                        }
-                      } catch (regErr) {
-                        Alert.alert('Error', 'Registration failed');
-                      }
-                      setLoading(false);
-                    } else {
-                      attempts++;
-                      if (attempts >= 3) {
-                        Alert.alert('Error', 'Too many incorrect attempts. Please request a new code.');
-                        setLoading(false);
-                        return;
-                      }
-                      Alert.alert('Error', 'Incorrect code', [
-                        { text: 'Try Again', onPress: () => verifyLoop() },
-                        { text: 'Resend Code', onPress: async () => {
-                          setLoading(true);
-                          try {
-                            await API.post('/api/auth/send-code', { phone });
-                            Alert.alert('Success', 'Verification code resent');
-                          } catch (err) {
-                            Alert.alert('Error', 'Failed to resend code. Please try again later.');
-                          }
-                          setLoading(false);
-                          attempts = 0;
-                          verifyLoop();
-                        }},
-                      ]);
-                      setLoading(false);
-                    }
-                  } catch (err) {
-                    if (err.response?.status === 403) {
-                      Alert.alert('Error', 'Too many attempts. Your account was deleted. Please register again.');
-                    } else if (err.response?.status === 400) {
-                      attempts++;
-                      if (attempts >= 3) {
-                        Alert.alert('Error', 'Too many incorrect attempts. Please request a new code.');
-                        setLoading(false);
-                        return;
-                      }
-                      Alert.alert('Error', 'Incorrect code.', [
-                        { text: 'Try Again', onPress: () => verifyLoop() },
-                        { text: 'Resend Code', onPress: async () => {
-                          setLoading(true);
-                          try {
-                            await API.post('/api/auth/send-code', { phone });
-                            Alert.alert('Success', 'Verification code resent');
-                          } catch (err) {
-                            Alert.alert('Error', 'Failed to resend code. Please try again later.');
-                          }
-                          setLoading(false);
-                          attempts = 0;
-                          verifyLoop();
-                        }},
-                      ]);
-                    } else {
-                      Alert.alert('Error', 'Server error, please try again.');
-                    }
-                    setLoading(false);
-                  }
-                }
-              }
-            ],
-            'plain-text',
-            '',
-            'number-pad'
-          );
-        };
-        verifyLoop();
-      };
-
-      if (Alert.prompt) {
-        handleVerification();
-      } else {
-        Alert.alert(
-          'Verification Required',
-          'Code input function is not supported on this device. Please contact support.'
-        );
-        setLoading(false);
-      }
+      setCodeSent(true);
+      setOtp('');
+      setOtpAttempts(0);
     } catch (error) {
       console.log('Send code error:', error?.response?.data || error.message);
       Alert.alert('Error', 'Failed to send verification code. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    setLoading(true);
+    try {
+      await API.post('/api/auth/send-code', { phone });
+      setOtp('');
+      setOtpAttempts(0);
+      Alert.alert('Success', 'Verification code resent');
+    } catch (err) {
+      Alert.alert('Error', 'Failed to resend code. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerify = async () => {
+    if (!otp || otp.length !== 4) {
+      Alert.alert('Error', 'Please enter the 4-digit code');
+      return;
+    }
+
+    if (otpAttempts >= 3) {
+      Alert.alert('Error', 'Too many incorrect attempts. Please request a new code.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const verifyRes = await API.post('/api/auth/verify', { phone, code: otp });
+      if (verifyRes.status === 200) {
+        const res = await API.post('/api/auth/register', { name, phone, password });
+        if (res.status === 201) {
+          Alert.alert('Success', 'Registration and verification completed successfully!', [
+            { text: 'OK', onPress: () => navigation.navigate('Home') }
+          ]);
+        } else {
+          Alert.alert('Error', 'Registration failed');
+        }
+      }
+    } catch (err) {
+      if (err.response?.status === 403) {
+        Alert.alert('Error', 'Too many attempts. Your account was deleted. Please register again.');
+        setCodeSent(false);
+        setOtpAttempts(0);
+      } else if (err.response?.status === 400) {
+        const newAttempts = otpAttempts + 1;
+        setOtpAttempts(newAttempts);
+        if (newAttempts >= 3) {
+          Alert.alert('Error', 'Too many incorrect attempts. Please request a new code.');
+        } else {
+          Alert.alert('Error', `Incorrect code. ${3 - newAttempts} attempt(s) remaining.`);
+        }
+      } else {
+        Alert.alert('Error', 'Server error, please try again.');
+      }
+    } finally {
       setLoading(false);
     }
   };
@@ -161,32 +102,57 @@ export default function RegisterScreen() {
       </View>
       <Text style={styles.header}>Register</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Full Name"
-        value={name}
-        onChangeText={setName}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Phone Number"
-        value={phone}
-        onChangeText={setPhone}
-        keyboardType="phone-pad"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
-
-      <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={loading}>
-        <Text style={styles.buttonText}>
-          {loading ? 'Register...' : 'Register'}
-        </Text>
-      </TouchableOpacity>
+      {!codeSent ? (
+        <>
+          <TextInput
+            style={styles.input}
+            placeholder="Full Name"
+            value={name}
+            onChangeText={setName}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Phone Number"
+            value={phone}
+            onChangeText={setPhone}
+            keyboardType="phone-pad"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
+          <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={loading}>
+            <Text style={styles.buttonText}>
+              {loading ? 'Sending code...' : 'Register'}
+            </Text>
+          </TouchableOpacity>
+        </>
+      ) : (
+        <>
+          <Text style={styles.infoText}>
+            A verification code was sent to {phone}
+          </Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter 4-digit code"
+            value={otp}
+            onChangeText={setOtp}
+            keyboardType="number-pad"
+            maxLength={4}
+          />
+          <TouchableOpacity style={styles.button} onPress={handleVerify} disabled={loading}>
+            <Text style={styles.buttonText}>
+              {loading ? 'Verifying...' : 'Confirm'}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.resendButton} onPress={handleResendCode} disabled={loading}>
+            <Text style={styles.resendText}>Resend Code</Text>
+          </TouchableOpacity>
+        </>
+      )}
     </View>
   );
 }
@@ -211,6 +177,12 @@ const styles = StyleSheet.create({
     color: '#e85d04',
     textAlign: 'center',
   },
+  infoText: {
+    textAlign: 'center',
+    color: '#555',
+    marginBottom: 20,
+    fontSize: 14,
+  },
   input: {
     borderWidth: 1,
     borderColor: '#ff8c42',
@@ -230,5 +202,14 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  resendButton: {
+    alignItems: 'center',
+    marginTop: 15,
+  },
+  resendText: {
+    color: '#e85d04',
+    fontSize: 14,
+    textDecorationLine: 'underline',
   },
 });
