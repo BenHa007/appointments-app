@@ -1,6 +1,7 @@
 const WorkHour = require('../models/WorkHour');
 const Manager = require('../models/Manager');
 
+// returns the work hours set for the logged-in manager
 exports.list = async (req, res) => {
     const manager = await Manager.findOne({ user: req.user.id });
     if (!manager) return res.status(404).json({ error: 'Manager not found' });
@@ -8,8 +9,7 @@ exports.list = async (req, res) => {
     res.json(hours);
 };
 
-
-
+// saves the opening and closing hours for each day of the week for the logged-in manager
 exports.create = async (req, res) => {
     const manager = await Manager.findOne({ user: req.user.id });
     if (!manager) return res.status(404).json({ error: 'Manager not found' });
@@ -50,6 +50,7 @@ exports.create = async (req, res) => {
     }
 };
 
+// updates a specific work hour entry belonging to the logged-in manager
 exports.update = async (req, res) => {
     const { id } = req.params;
     const manager = await Manager.findOne({ user: req.user.id });
@@ -64,6 +65,7 @@ exports.update = async (req, res) => {
     res.json(updated);
 };
 
+// deletes a specific work hour entry belonging to the logged-in manager
 exports.delete = async (req, res) => {
     const { id } = req.params;
     const manager = await Manager.findOne({ user: req.user.id });
@@ -74,6 +76,7 @@ exports.delete = async (req, res) => {
     res.json({ message: 'נמחק בהצלחה' });
 };
 
+// returns work hours and treatments for a specific manager so clients can see available times
 exports.getAvailabilityByManager = async (req, res) => {
     const managerId = req.params.id;
 

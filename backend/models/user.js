@@ -6,9 +6,9 @@ const userSchema = new Schema({
     phone: { type: String, required: true, unique: true },
     password: { type: String, required: true, minlength: 6 },
     isVerified: { type: Boolean, default: false },
-    verificationCodeHash: { type: String, default: null },
-    verificationExpires: { type: Date, default: null },
-    verificationAttempts: { type: Number, default: 0 }
+    // verificationCodeHash: { type: String, default: null },
+    // verificationExpires: { type: Date, default: null },
+    // verificationAttempts: { type: Number, default: 0 }
 }, { timestamps: true });
 
 module.exports = mongoose.models.User || mongoose.model('User', userSchema);

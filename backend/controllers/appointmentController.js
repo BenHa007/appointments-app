@@ -1,12 +1,12 @@
 const Appointment = require('../models/Appointment');
 const Manager = require('../models/Manager');
 
-
+// returns all appointments for a manager if logged in as manager, or only client's own appointments
 exports.list = async (req, res) => {
     let filter;
     if (req.user.isManager) {
         const mgr = await Manager.findOne({ user: req.user.id }, '_id');
-        if (!mgr) return res.json([]);           
+        if (!mgr) return res.json([]);
         filter = { manager: mgr._id };
     } else {
         filter = { client: req.user.id };
@@ -16,6 +16,7 @@ exports.list = async (req, res) => {
     res.json(list);
 };
 
+// creates a new appointment for the logged-in client with the selected manager, date, and service
 exports.create = async (req, res) => {
     try {
         console.log('🔥 create appointment, body =', req.body);
@@ -41,6 +42,7 @@ exports.create = async (req, res) => {
     }
 };
 
+// client can update only their own appointment, and manager can update any appointment booked for them
 exports.update = async (req, res) => {
     const { id } = req.params;
     let managerFilter = null;
@@ -59,6 +61,8 @@ exports.update = async (req, res) => {
     res.json(updated);
 };
 
+
+// client can delete only their own appointment, and manager can delete any appointment booked for them
 exports.delete = async (req, res) => {
     const { id } = req.params;
     let managerFilter = null;
@@ -73,10 +77,12 @@ exports.delete = async (req, res) => {
     res.json({ message: 'התור בוטל' });
 };
 
+
+// returns all appointments already taken for a specific manager on a specific date
 exports.getByManagerAndDate = async (req, res) => {
     try {
         const { managerId } = req.params;
-        const { date } = req.query; 
+        const { date } = req.query;
 
         const from = new Date(date);
         const to = new Date(date);
@@ -94,6 +100,7 @@ exports.getByManagerAndDate = async (req, res) => {
     }
 };
 
+// returns all appointments booked by the logged-in client with manager details
 exports.getMyAppointments = async (req, res) => {
     try {
         const appointments = await Appointment.find({ client: req.user.id })
