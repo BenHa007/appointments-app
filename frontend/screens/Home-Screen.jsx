@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Image, Linking, StyleSheet, SafeAreaView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { decode as atob } from 'base-64';
+import { decode } from 'base-64';
 import InstagramIcon from '../assets/icons/icons8-instagram-50.png';
 import PhoneIcon from '../assets/icons/icons8-phone-50.png';
 import AddressIcon from '../assets/icons/location.png';
@@ -20,7 +20,7 @@ export default function HomeScreen() {
         const token = await AsyncStorage.getItem('token');
         if (token) {
           const base64Payload = token.split('.')[1];
-          const decodedPayload = JSON.parse(atob(base64Payload));
+          const decodedPayload = JSON.parse(decode(base64Payload));
           setUserName(decodedPayload.name || 'User');
           setIsManager(decodedPayload.isManager || false);
         }
