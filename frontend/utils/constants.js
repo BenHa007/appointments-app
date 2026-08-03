@@ -11,4 +11,4 @@ export const INSTAGRAM_URL="https://www.instagram.com/beni.halperin";
 export const ADDRESS_URL="https://maps.app.goo.gl/KPPcnq3trjekEve49";
 export const PHONE_URL="tel:0541234567";
 
-export const SUPER_ADMIN_PHONE="000";
+export const SUPER_ADMIN_PHONE="0541234567";
