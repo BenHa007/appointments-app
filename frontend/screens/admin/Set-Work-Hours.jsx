@@ -14,6 +14,7 @@ export default function SetWorkHoursScreen() {
     Wednesday: { open: '', close: '' },
     Thursday: { open: '', close: '' },
     Friday: { open: '', close: '' },
+    Saturday: {open: '', close: ''}
   });
 
   useEffect(() => {
