@@ -16,6 +16,8 @@ exports.sendCode = async (req, res) => {
     const expires = Date.now() + 5 * 60 * 1000;
 
     let verification = await Verification.findOne({ phone });
+
+    console.log({verification})
     if (verification) {
       verification.codeHash = hash;
       verification.expires = expires;

@@ -116,12 +116,12 @@ export default function HomeScreen() {
               <Text style={styles.iconLabel}>{SALON_ADDRESS || 'Address'}</Text>
             </View>
 
-            <View style={styles.iconColumn}>
+            {/* <View style={styles.iconColumn}>
               <TouchableOpacity onPress={() => Linking.openURL(PHONE_URL)}>
                 <Image source={PhoneIcon} style={styles.iconImage} />
               </TouchableOpacity>
               <Text style={styles.iconLabel}>{SALON_PHONE || 'Phone'}</Text>
-            </View>
+            </View> */}
           </View>
         </View>
       </View>
