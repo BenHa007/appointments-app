@@ -20,6 +20,7 @@ const jwt = require('jsonwebtoken');
 // createInitialAdmin(); 
 
 // hashes the password and creates a new user account
+
 exports.register = async (req, res) => {
   const { name, phone, password } = req.body;
   try {

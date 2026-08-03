@@ -44,9 +44,9 @@ exports.verifyCode = async (req, res) => {
     const { phone, code } = req.body;
     const verification = await Verification.findOne({ phone });
 
-    if (!verification) {
-      return res.status(404).json({ message: 'Verification record not found' });
-    }
+    // if (!verification) {
+    //   return res.status(404).json({ message: 'Verification record not found' });
+    // }
 
     if (verification.attempts >= 5) {
       await Verification.deleteOne({ _id: verification._id });
