@@ -63,7 +63,10 @@ exports.login = async (req, res) => {
 // returns a list of all registered users in the system
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find();
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const users = await User.find().skip(skip).limit(limit);
     res.send(users);
   } catch (err) {
     res.status(500).send({ error: 'Failed to fetch users' });

@@ -16,7 +16,6 @@ exports.sendCode = async (req, res) => {
     const hash = await bcrypt.hash(code, 10);
     const expires = Date.now() + 5 * 60 * 1000;
 
-    console.log('-----------------------------------')
     let verification = await Verification.findOne({ phone });
     
     if (verification) {
