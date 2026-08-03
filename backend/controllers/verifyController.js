@@ -6,8 +6,8 @@ exports.sendCode = async (req, res) => {
   try {
     const { phone } = req.body;
 
-    console.log('-----------------------------')
     const userExists = await User.findOne({ phone });
+    console.log('-----------------------------')
     if (userExists) {
       return res.status(400).json({ message: 'מספר הטלפון הזה כבר רשום במערכת' });
     }
