@@ -6,6 +6,7 @@ exports.sendCode = async (req, res) => {
   try {
     const { phone } = req.body;
 
+    console.log('-----------------------------')
     const userExists = await User.findOne({ phone });
     if (userExists) {
       return res.status(400).json({ message: 'מספר הטלפון הזה כבר רשום במערכת' });
@@ -16,7 +17,7 @@ exports.sendCode = async (req, res) => {
     const expires = Date.now() + 5 * 60 * 1000;
 
     let verification = await Verification.findOne({ phone });
-
+    
     console.log({verification})
     if (verification) {
       verification.codeHash = hash;
