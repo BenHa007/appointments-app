@@ -17,7 +17,7 @@ exports.sendCode = async (req, res) => {
 
     let verification = await Verification.findOne({ phone });
     
-    console.log({verification})
+    console.log('-----------------------------------')
     if (verification) {
       verification.codeHash = hash;
       verification.expires = expires;
