@@ -6,10 +6,10 @@ exports.sendCode = async (req, res) => {
   try {
     const { phone } = req.body;
 
-    const userExists = await User.findOne({ phone });
-    if (userExists) {
-      return res.status(400).json({ message: 'מספר הטלפון הזה כבר רשום במערכת' });
-    }
+    // const userExists = await User.findOne({ phone });
+    // if (userExists) {
+    //   return res.status(400).json({ message: 'מספר הטלפון הזה כבר רשום במערכת' });
+    // }
 
     const code = Math.floor(1000 + Math.random() * 9000).toString();
     const hash = await bcrypt.hash(code, 10);
@@ -44,9 +44,9 @@ exports.verifyCode = async (req, res) => {
     const { phone, code } = req.body;
     const verification = await Verification.findOne({ phone });
 
-    // if (!verification) {
-    //   return res.status(404).json({ message: 'Verification record not found' });
-    // }
+    if (!verification) {
+      return res.status(404).json({ message: 'Verification record not found' });
+    }
 
     if (verification.attempts >= 5) {
       await Verification.deleteOne({ _id: verification._id });
