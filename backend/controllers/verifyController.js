@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const Verification = require('../models/Verification');
+const User = require('../models/user');
 
 // generates a random 4-digit code, hashes it, and saves it with a 5-minute expiration
 exports.sendCode = async (req, res) => {
